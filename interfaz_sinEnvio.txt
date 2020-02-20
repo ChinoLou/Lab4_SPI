@@ -1,38 +1,44 @@
 #Laboratorio 4
-#Comunicación SPI Y Serial
-#Operacion del Programa: Mandar 2 potenciómetros (ADC)desde un PIC16F# SLAVE a un PIC16F# MASTER POR "SPI" LEER DICHOS ADC EN LA COMPU. Mandar un número decimal a el puertoB del PIC16# MASTER
-#Steven Josué Castillo Lou / Carné: 17169
-#Electrónica Digital 2 (secc. 10)
+#ComunicaciÃ³n SPI Y Serial
+#Operacion del Programa: Mandar 2 potenciÃ³metros (ADC)desde un PIC16F# SLAVE a un PIC16F# MASTER POR "SPI" LEER DICHOS ADC EN LA COMPU. Mandar un nÃºmero decimal a el puertoB del PIC16# MASTER
+#Steven JosuÃ© Castillo Lou / CarnÃ©: 17169
+#ElectrÃ³nica Digital 2 (secc. 10)
 
 from Tkinter import*
 import serial
-import struct               #Librería para convertir los datos a Bytes 
 import time
 import sys
 
 
-#---------------------- Configuración Serial ----------------------------
+#---------------------- ConfiguraciÃ³n Serial ----------------------------
 puerto = 'COM3'
 ser = serial.Serial(port = puerto, baudrate = 9600,
                     parity = serial.PARITY_NONE,
                     stopbits = serial.STOPBITS_ONE,
                     bytesize = serial. EIGHTBITS, timeout = 0)
-#-----------------------------------------------------------------------
+#-----------------------------------------------------------------
 color_fondo = '#DCDCDC'
 voltaje1 = 0
 voltaje2 = 0
 voltaje3 = 0
 
     
-#---------------- Funcion del Boton enviar -----------------------------
+#------------------------------------------------------------
 
-def enviar():                         #Funcion para enviar los datos al PIC 
-    numero_str=contadorNew.get()      #asignamos a la variable numero_str el valor del string ingresado en la ventana del "Entry"
-    num_entero=int(numero_str)        #Convertimos dicho Str en un Entero "Int" 
+def enviar (): #FunciÃ³n para enviar datos
+    try: #Prueba que sea un nÃºmero entero
+        entero = int(contador.get())
+        error.set(" ")
+        
+        if entero > 255 or entero < 0: #Verifica que este dentro del rango si no, muestra un error
+            error.set("INGRESE UN VALOR ENTRE 0 Y 255")
 
-    ser.write(struct.pack('>B',num_entero))          #STRUCT manda los datos ingresados en el "entry" en forma binaria al PIC desde el TTL
-    print("Byte envíado")                            #Esta funcion "struct.pack" solo permine ingresar numeros de 0-255 (1 Byte) por lo que no es necesario hacer progra defensiva!!!
-    print (num_entero)                               #num_entero es el dato en Byte que se envia del TTL al PIC  
+       # else: #Si todo se cumple, envia el dato
+        #    data.write(struct.pack('>B',entero))
+        
+    except: #Si no es entero, muestra un error
+        print ("ingrese un numero")
+        error.set("INGRESE UN VALOR NUMÃ‰RICO ENTERO")   
 
 
 
@@ -48,11 +54,14 @@ ventana.config(bg=color_fondo)
 rut1 = Label(ventana, text="POT No.1:", background = color_fondo, font=('Comics', 16)).place(x=60,y=20)
 rut2 = Label(ventana, text="POT No.2:", background = color_fondo, font=('Comics', 16)).place(x=60,y=45)
 rut3 = Label(ventana, text="TTL   :", background = color_fondo, font=('Comics', 16)).place(x=60,y=70)
-nombre1 = Label(ventana, text="Josué Castillo \n 17169", background = color_fondo, font=('Times', 14)).place(x=90,y=140)
+nombre1 = Label(ventana, text="JosuÃ© Castillo \n 17169", background = color_fondo, font=('Times', 14)).place(x=90,y=140)
 
 #-----------------Boton---------------------
 
-envioTTL = Button(ventana, text = "Enviar", command = enviar ).place(x=250,y=75)  #! "comamand = enviar" relaciona el boton de la ventana del Entry con la funcion "envio"
+send = Button(ventana, text = "Enviar", command = enviar ).place(x=250,y=75)
+
+ #Boton enlazado con la funcion enviar
+
 
 #------------------variables-----------------
 voltaje_1 = Label(ventana,text=str(voltaje1) ,fg="red",font=(18))
@@ -67,9 +76,13 @@ voltaje_1_1.place(x=225,y=20)
 voltaje_2_1 = Label(ventana,text="V" ,fg="red",font=(18))
 voltaje_2_1.place(x=225,y=45)
 
-#--------------  Cuadro de Entrada ------------------#
-contadorNew = Entry(ventana, justify= CENTER, width=3)  #! Le asignamos el dato que ingresamos en el "Entry" a la variable "contadorNew"
-contadorNew.place(x=200,y=80)  #Posición del Entry
+###############################################################33
+contador = Entry(ventana, justify= CENTER, width=3)
+contador.place(x=200,y=80)
+
+error = StringVar()
+error.set(" ")
+
 
 while True:
     dato = ser.read()
